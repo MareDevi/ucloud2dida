@@ -1,0 +1,12 @@
+[project]
+name = "ucloud2dida"
+version = "0.1.0"
+description = "a tool to sync todos from bupt ucloud to dida todolist"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dida365>=0.1.9",
+    "dotenv>=0.9.9",
+    "html2text>=2024.2.26",
+    "requests>=2.32.3",
+]
