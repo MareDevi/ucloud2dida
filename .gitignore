@@ -13,3 +13,7 @@ wheels/
 
 auth.json
 uv.lock
+
+# Logs
+logs/
+*.log

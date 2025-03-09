@@ -59,6 +59,7 @@ KETANGPAI_COURSE_ID=your_ketangpai_course_id
 # 可选设置
 SYNC_INTERVAL_SECONDS=3600  # 默认：1小时
 MAX_RETRIES=3               # 默认：3次重试
+LOG_LEVEL=INFO             # 可选：DEBUG, INFO, WARNING, ERROR, CRITICAL
 ```
 
 ### 获取滴答清单项目ID
