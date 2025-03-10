@@ -9,15 +9,20 @@ from dotenv import load_dotenv
 class BuptAPI:
     def __init__(self):
         load_dotenv()
-        self._initialize_auth()
+        self.account = os.getenv("BUPT_ACCOUNT")
+        self.password = os.getenv("BUPT_PASSWORD")
         self._setup_endpoints()
-        self._setup_headers()
 
-    def _initialize_auth(self):
-        """初始化认证信息"""
-        account = os.getenv("BUPT_ACCOUNT")
-        password = os.getenv("BUPT_PASSWORD")
-        get_co_and_sa(account, password)
+    def _setup_endpoints(self):
+        """设置API端点"""
+        self.base_url = "https://apiucloud.bupt.edu.cn"
+        self.file_url = "https://fileucloud.bupt.edu.cn/ucloud/document/"
+        self.assignment_file_url = f"{self.base_url}/blade-source/resource/filePath"
+
+    def _refresh_auth(self):
+        """刷新认证信息"""
+        logger.info("刷新北邮认证信息")
+        get_co_and_sa(self.account, self.password)
 
         with open("auth.json", "r") as file:
             account_data = json.load(file)
@@ -26,14 +31,6 @@ class BuptAPI:
             self.auth_token = account_data["auth_token"]
             self.blade = account_data["blade"]
 
-    def _setup_endpoints(self):
-        """设置API端点"""
-        self.base_url = "https://apiucloud.bupt.edu.cn"
-        self.file_url = "https://fileucloud.bupt.edu.cn/ucloud/document/"
-        self.assignment_file_url = f"{self.base_url}/blade-source/resource/filePath"
-
-    def _setup_headers(self):
-        """设置请求头"""
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             "Accept": "application/json, text/plain, */*",
@@ -45,6 +42,7 @@ class BuptAPI:
     def get_todo_list(self):
         """获取待办事项列表"""
         logger.info("正在获取待办事项列表")
+        self._refresh_auth()
         response = requests.get(
             f"{self.base_url}/ykt-site/site/student/undone",
             headers=self.headers,
