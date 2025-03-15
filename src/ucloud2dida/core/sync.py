@@ -31,81 +31,51 @@ async def sync_tasks():
         f"项目 {project_data.project.name} 当前包含 {len(project_data.tasks)} 个任务"
     )
 
-    tasks = []
-    for i in project_data.tasks:
-        tasks.append(i.title)
+    existing_tasks = {task.title for task in project_data.tasks}
+    del project_data
 
     logger.info("开始获取待办事项列表")
-    todos = get_todo_list()
-    logger.info(f"获取到 {len(todos)} 个待办事项")
+    for todo in get_todo_list():  
+        if todo["activityName"] in existing_tasks:
+            logger.debug(f"任务 '{todo['activityName']}' 已存在，跳过")
+            continue
 
-    for i in todos:
-        if i["activityName"] in tasks:
-            logger.debug(f"任务 '{i['activityName']}' 已存在，跳过")
-            pass
-        else:
-            if i["type"] == 3:
-                logger.info(f"获取作业详情：{i['activityName']}")
-                assignment_detail = get_assignment_detail(i["activityId"])
-                logger.info(f"创建作业任务：{i['activityName']}")
+        if todo["type"] == 3:
+            logger.info(f"获取作业详情：{todo['activityName']}")
+            assignment_detail = get_assignment_detail(todo["activityId"])
+            content = html2text.HTML2Text().handle(assignment_detail["content"])
+            await create_task(client, project.id, todo, content)
+            del assignment_detail, content 
+        elif todo["type"] == 4:
+            await create_task(client, project.id, todo)
 
-                content = assignment_detail["content"]
-                # Convert HTML to markdown
-                h = html2text.HTML2Text()
-                h.ignore_links = False
-                h.ignore_images = False
-                content = h.handle(content)
-                _task = await client.create_task(
-                    TaskCreate(
-                        project_id=project.id,
-                        title=i["activityName"],
-                        content=content,
-                        priority=TaskPriority.MEDIUM,
-                        due_date=datetime.strptime(i["endTime"], "%Y-%m-%d %H:%M:%S"),
-                        is_all_day=False,
-                        time_zone="UTC",
-                    )
-                )
-                logger.info(f"成功创建作业任务：{i['activityName']}")
-            elif i["type"] == 4:
-                logger.info(f"创建普通任务：{i['activityName']}")
-                _task = await client.create_task(
-                    TaskCreate(
-                        project_id=project.id,
-                        title=i["activityName"],
-                        priority=TaskPriority.MEDIUM,
-                        due_date=datetime.strptime(i["endTime"], "%Y-%m-%d %H:%M:%S"),
-                        is_all_day=False,
-                        time_zone="UTC",
-                    )
-                )
-                logger.info(f"成功创建普通任务：{i['activityName']}")
-
-    # Get the course content if KETANGPAI_TOKEN exists
+    # 处理课堂派任务
     if os.getenv("KETANGPAI_TOKEN"):
         logger.info("检测到课堂派令牌，开始同步课堂派任务")
-        undone_assigenments = get_course_content()
-        logger.info(f"获取到 {len(undone_assigenments)} 个未完成的课堂派作业")
-
-        for i in undone_assigenments:
-            if i["title"] in tasks:
-                logger.debug(f"课堂派任务 '{i['title']}' 已存在，跳过")
-                pass
-            else:
-                logger.info(f"创建课堂派任务：{i['title']}")
-                _task = await client.create_task(
-                    TaskCreate(
-                        project_id=project.id,
-                        title=i["title"],
-                        priority=TaskPriority.MEDIUM,
-                        due_date=datetime.strptime(i["endtime"], "%Y-%m-%d %H:%M:%S"),
-                        is_all_day=False,
-                        time_zone="UTC",
-                    )
-                )
-                logger.info(f"成功创建课堂派任务：{i['title']}")
+        for assignment in get_course_content(): 
+            if assignment["title"] in existing_tasks:
+                logger.debug(f"课堂派任务 '{assignment['title']}' 已存在，跳过")
+                continue
+            await create_task(client, project.id, assignment)
     else:
         logger.info("未检测到课堂派令牌，跳过课堂派任务同步")
+
+
+async def create_task(client, project_id, item, content=None):
+    """创建任务的辅助函数"""
+    task_create = TaskCreate(
+        project_id=project_id,
+        title=item.get("activityName", item.get("title")),
+        content=content,
+        priority=TaskPriority.MEDIUM,
+        due_date=datetime.strptime(
+            item.get("endTime", item.get("endtime")), "%Y-%m-%d %H:%M:%S"
+        ),
+        is_all_day=False,
+        time_zone="UTC",
+    )
+    await client.create_task(task_create)
+    logger.info(f"成功创建任务：{task_create.title}")
 
 
 async def wait_with_interrupt(event, seconds):

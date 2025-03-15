@@ -5,12 +5,13 @@ from src.ucloud2dida.utils.logger import setup_logger
 from src.ucloud2dida.core.sync import perform_sync_cycle
 from src.ucloud2dida.utils.config import config
 
+
 async def main():
     """主程序入口"""
     # 设置日志级别
     logger = setup_logger(config.log_level)
     logger.debug("日志级别已设置")
-    
+
     shutdown_event = asyncio.Event()
 
     def signal_handler():
@@ -21,7 +22,7 @@ async def main():
     loop = asyncio.get_running_loop()
 
     if system == "Windows":
-        signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
+        signal.signal(signal.SIGINT, lambda _, __: signal_handler())
         logger.info("运行在Windows系统上，已设置SIGINT (Ctrl+C) 信号处理")
     else:
         for sig in (signal.SIGINT, signal.SIGTERM):
@@ -40,6 +41,7 @@ async def main():
 
 
 if __name__ == "__main__":
+    logger = setup_logger(config.log_level)
     try:
         asyncio.run(main())
     except Exception as e:

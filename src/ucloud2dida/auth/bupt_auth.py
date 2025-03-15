@@ -106,6 +106,7 @@ class BuptAuthenticator:
         with open("auth.json", "w") as f:
             json.dump(auth_data, f)
 
+
 # 创建全局认证器实例
 authenticator = BuptAuthenticator()
 get_co_and_sa = authenticator.authenticate

@@ -14,7 +14,6 @@ class KetangpaiAPI:
         self.headers = {"Content-Type": "application/json", "token": self.token}
 
     def get_course_info(self):
-        """获取课程信息"""
         url = f"{self.base_url}/CourseBigDataApi/getCourseBaseDataV2"
         response = requests.post(
             url, headers=self.headers, json={"courseid": self.course_id}
@@ -22,10 +21,9 @@ class KetangpaiAPI:
         return response.json()["data"]
 
     def get_course_content(self):
-        """获取课程内容"""
         if not self.token:
             logger.warning("未配置课堂派token，跳过获取课程内容")
-            return []
+            return
 
         logger.info("正在获取课堂派课程内容")
         url = f"{self.base_url}/FutureV2/CourseMeans/getCourseContent"
@@ -44,19 +42,17 @@ class KetangpaiAPI:
 
         response = requests.post(url, headers=self.headers, json=data)
         assignments = response.json()["data"]["list"]
-        undone = []
+        course_info = None
 
         for assignment in assignments:
             if assignment["timestate"] == 2:
-                course_info = self.get_course_info()
+                if course_info is None:
+                    course_info = self.get_course_info()
                 title = f"{course_info['coursename']}-{assignment['title']}"
                 endtime = datetime.fromtimestamp(int(assignment["endtime"])).strftime(
                     "%Y-%m-%d %H:%M:%S"
                 )
-                undone.append({"title": title, "endtime": endtime})
-
-        logger.info(f"获取到 {len(undone)} 个未完成的课堂派作业")
-        return undone
+                yield {"title": title, "endtime": endtime}
 
 
 # 创建全局API实例

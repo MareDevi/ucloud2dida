@@ -46,7 +46,7 @@ class Config:
         logger.debug(f"最大重试次数设置为 {retries} 次")
         return retries
 
-    @property 
+    @property
     def log_level(self):
         """获取日志级别设置"""
         level = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -55,7 +55,7 @@ class Config:
             "INFO": logging.INFO,
             "WARNING": logging.WARNING,
             "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL
+            "CRITICAL": logging.CRITICAL,
         }
         return valid_levels.get(level, logging.INFO)
 

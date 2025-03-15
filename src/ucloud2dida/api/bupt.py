@@ -40,7 +40,6 @@ class BuptAPI:
         }
 
     def get_todo_list(self):
-        """获取待办事项列表"""
         logger.info("正在获取待办事项列表")
         self._refresh_auth()
         response = requests.get(
@@ -51,7 +50,8 @@ class BuptAPI:
         data = response.json()
         todos = data["data"]["undoneList"]
         logger.info(f"成功获取到 {len(todos)} 个待办事项")
-        return todos
+        for todo in todos:
+            yield todo
 
     def get_assignment_detail(self, assignment_id):
         """获取作业详情"""
