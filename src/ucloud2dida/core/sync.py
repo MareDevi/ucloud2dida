@@ -13,7 +13,7 @@ from ..api.ketangpai import get_course_content
 
 async def sync_tasks():
     """核心同步任务实现"""
-    load_dotenv('.env')
+    load_dotenv(".env")
     logger.info("开始初始化 Dida365 客户端")
     client = Dida365Client()  # Will load from the specified .env file
 
@@ -35,7 +35,7 @@ async def sync_tasks():
     del project_data
 
     logger.info("开始获取待办事项列表")
-    for todo in get_todo_list():  
+    for todo in get_todo_list():
         if todo["activityName"] in existing_tasks:
             logger.debug(f"任务 '{todo['activityName']}' 已存在，跳过")
             continue
@@ -45,14 +45,14 @@ async def sync_tasks():
             assignment_detail = get_assignment_detail(todo["activityId"])
             content = html2text.HTML2Text().handle(assignment_detail["content"])
             await create_task(client, project.id, todo, content)
-            del assignment_detail, content 
+            del assignment_detail, content
         elif todo["type"] == 4:
             await create_task(client, project.id, todo)
 
     # 处理课堂派任务
     if os.getenv("KETANGPAI_TOKEN"):
         logger.info("检测到课堂派令牌，开始同步课堂派任务")
-        for assignment in get_course_content(): 
+        for assignment in get_course_content():
             if assignment["title"] in existing_tasks:
                 logger.debug(f"课堂派任务 '{assignment['title']}' 已存在，跳过")
                 continue
@@ -97,7 +97,7 @@ async def execute_with_retry(task_func, max_retries):
                 logger.info(f"将在 {wait_time} 秒后重试")
                 await asyncio.sleep(wait_time)
             else:
-                #print error message
+                # print error message
                 logger.error(f"达到最大重试次数,error message: {e}")
 
     return False, time.time() - start_time

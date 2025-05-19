@@ -15,8 +15,7 @@ class BuptAPI:
     def get_todo_list(self):
         logger.info("正在获取待办事项列表")
         response = requests.get(
-            f"{self.url}/undoneList",
-            auth=HTTPBasicAuth(self.account, self.password)
+            f"{self.url}/undoneList", auth=HTTPBasicAuth(self.account, self.password)
         )
         data = response.json()
         todos = data["undoneList"]
@@ -30,7 +29,7 @@ class BuptAPI:
         response = requests.get(
             f"{self.url}/homework",
             params={"id": assignment_id},
-            auth=HTTPBasicAuth(self.account, self.password)
+            auth=HTTPBasicAuth(self.account, self.password),
         )
 
         data = response.json()
