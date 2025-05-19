@@ -38,9 +38,9 @@ jobs:
           BUPT_PASSWORD=${{ secrets.BUPT_PASSWORD }}
           KETANGPAI_TOKEN=${{ secrets.KETANGPAI_TOKEN }}
           KETANGPAI_COURSE_ID=${{ secrets.KETANGPAI_COURSE_ID }}
-          SYNC_INTERVAL_SECONDS=3600
+          SYNC_INTERVAL_SECONDS=${{ secrets.SYNC_INTERVAL_SECONDS || 3600 }}
           MAX_RETRIES=3
-          LOG_LEVEL=INFO
+          LOG_LEVEL=${{ secrets.LOG_LEVEL || 'INFO' }}
           EOF
 
       - name: 运行同步服务

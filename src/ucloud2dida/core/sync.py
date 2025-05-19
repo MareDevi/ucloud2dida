@@ -13,7 +13,7 @@ from ..api.ketangpai import get_course_content
 
 async def sync_tasks():
     """核心同步任务实现"""
-    load_dotenv(override=True)
+    load_dotenv('.env')
     logger.info("开始初始化 Dida365 客户端")
     client = Dida365Client()  # Will load from the specified .env file
 
