@@ -2,7 +2,7 @@ name: Scheduled Sync
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # 每天UTC时间2点（北京时间10点）运行一次
+    - cron: '0 * * * *'  # 每小时UTC时间0分执行一次
   workflow_dispatch:
 
 jobs:
