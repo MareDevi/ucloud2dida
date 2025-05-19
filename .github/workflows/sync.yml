@@ -33,6 +33,7 @@ jobs:
           echo "DIDA365_REDIRECT_URI=${{ secrets.DIDA365_REDIRECT_URI }}" >> .env
           echo "DIDA365_SERVICE_TYPE=${{ secrets.DIDA365_SERVICE_TYPE }}" >> .env
           echo "DIDA365_PROJECT_ID=${{ secrets.DIDA365_PROJECT_ID }}" >> .env
+          echo "DIDA365_ACCESS_TOKEN=${{ secrets.DIDA365_ACCESS_TOKEN }}" >> .env
           echo "BUPT_ACCOUNT=${{ secrets.BUPT_ACCOUNT }}" >> .env
           echo "BUPT_PASSWORD=${{ secrets.BUPT_PASSWORD }}" >> .env
           echo "KETANGPAI_TOKEN=${{ secrets.KETANGPAI_TOKEN }}" >> .env
