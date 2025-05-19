@@ -28,20 +28,15 @@ jobs:
      
       - name: 创建 .env 文件
         run: |
-          cat <<EOF > .env
-          DIDA365_CLIENT_ID=${{ secrets.DIDA365_CLIENT_ID }}
-          DIDA365_CLIENT_SECRET=${{ secrets.DIDA365_CLIENT_SECRET }}
-          DIDA365_REDIRECT_URI=${{ secrets.DIDA365_REDIRECT_URI }}
-          DIDA365_SERVICE_TYPE=${{ secrets.DIDA365_SERVICE_TYPE }}
-          DIDA365_PROJECT_ID=${{ secrets.DIDA365_PROJECT_ID }}
-          BUPT_ACCOUNT=${{ secrets.BUPT_ACCOUNT }}
-          BUPT_PASSWORD=${{ secrets.BUPT_PASSWORD }}
-          KETANGPAI_TOKEN=${{ secrets.KETANGPAI_TOKEN }}
-          KETANGPAI_COURSE_ID=${{ secrets.KETANGPAI_COURSE_ID }}
-          SYNC_INTERVAL_SECONDS=${{ secrets.SYNC_INTERVAL_SECONDS || 3600 }}
-          MAX_RETRIES=3
-          LOG_LEVEL=${{ secrets.LOG_LEVEL || 'INFO' }}
-          EOF
+          echo "DIDA365_CLIENT_ID=${{ secrets.DIDA365_CLIENT_ID }}" >> .env
+          echo "DIDA365_CLIENT_SECRET=${{ secrets.DIDA365_CLIENT_SECRET }}" >> .env
+          echo "DIDA365_REDIRECT_URI=${{ secrets.DIDA365_REDIRECT_URI }}" >> .env
+          echo "DIDA365_SERVICE_TYPE=${{ secrets.DIDA365_SERVICE_TYPE }}" >> .env
+          echo "DIDA365_PROJECT_ID=${{ secrets.DIDA365_PROJECT_ID }}" >> .env
+          echo "BUPT_ACCOUNT=${{ secrets.BUPT_ACCOUNT }}" >> .env
+          echo "BUPT_PASSWORD=${{ secrets.BUPT_PASSWORD }}" >> .env
+          echo "KETANGPAI_TOKEN=${{ secrets.KETANGPAI_TOKEN }}" >> .env
+          echo "KETANGPAI_COURSE_ID=${{ secrets.KETANGPAI_COURSE_ID }}" >> .env
 
       - name: 运行同步服务
         run: |
