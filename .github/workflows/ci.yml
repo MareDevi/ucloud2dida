@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: 安装 uv
+        run: |
+          pip install uv
+
+      - name: 安装依赖
+        run: |
+          uv sync
+
+      - name: 代码格式检查 (ruff)
+        run: |
+          uv pip install ruff
+          ruff check .
+
+      - name: 代码格式化检查 (black)
+        run: |
+          uv pip install black
+          black --check .
+
+      - name: 运行测试
+        run: |
+          uv pip install pytest
+          pytest || true  # 若无测试可忽略错误

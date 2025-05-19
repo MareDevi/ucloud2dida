@@ -1,0 +1,44 @@
+name: Scheduled Sync
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 每天UTC时间2点（北京时间10点）运行一次
+  workflow_dispatch:
+
+jobs:
+  scheduled-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: 安装 uv
+        run: |
+          pip install uv
+
+      - name: 安装依赖
+        run: |
+          uv sync
+
+      - name: 运行同步服务
+        env:
+          DIDA365_CLIENT_ID: ${{ secrets.DIDA365_CLIENT_ID }}
+          DIDA365_CLIENT_SECRET: ${{ secrets.DIDA365_CLIENT_SECRET }}
+          DIDA365_REDIRECT_URI: ${{ secrets.DIDA365_REDIRECT_URI }}
+          DIDA365_SERVICE_TYPE: ${{ secrets.DIDA365_SERVICE_TYPE }}
+          DIDA365_PROJECT_ID: ${{ secrets.DIDA365_PROJECT_ID }}
+          BUPT_ACCOUNT: ${{ secrets.BUPT_ACCOUNT }}
+          BUPT_PASSWORD: ${{ secrets.BUPT_PASSWORD }}
+          KETANGPAI_TOKEN: ${{ secrets.KETANGPAI_TOKEN }}
+          KETANGPAI_COURSE_ID: ${{ secrets.KETANGPAI_COURSE_ID }}
+          SYNC_INTERVAL_SECONDS: 3600
+          MAX_RETRIES: 3
+          LOG_LEVEL: INFO
+        run: |
+          uv run main.py
