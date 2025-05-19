@@ -78,16 +78,7 @@ async def create_task(client, project_id, item, content=None):
     logger.info(f"成功创建任务：{task_create.title}")
 
 
-async def wait_with_interrupt(event, seconds):
-    """等待指定的秒数，可被中断事件打断"""
-    try:
-        await asyncio.wait_for(event.wait(), timeout=seconds)
-        return event.is_set()
-    except asyncio.TimeoutError:
-        return False
-
-
-async def execute_with_retry(task_func, max_retries, shutdown_event):
+async def execute_with_retry(task_func, max_retries):
     """使用指数退避策略执行任务，有重试机制"""
     start_time = time.time()
     retry_count = 0
@@ -104,26 +95,17 @@ async def execute_with_retry(task_func, max_retries, shutdown_event):
 
             if retry_count < max_retries:
                 logger.info(f"将在 {wait_time} 秒后重试")
-                if await wait_with_interrupt(shutdown_event, wait_time):
-                    return False, time.time() - start_time
+                await asyncio.sleep(wait_time)
             else:
-                logger.error("达到最大重试次数，等待下一个计划执行周期")
+                #print error message
+                logger.error(f"达到最大重试次数,error message: {e}")
 
     return False, time.time() - start_time
 
 
-async def perform_sync_cycle(shutdown_event, sync_interval, max_retries):
-    """执行一个完整的同步周期，包括任务执行和等待"""
+async def perform_sync_cycle(_, __, max_retries):
+    """执行一次同步任务"""
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.info(f"开始在 {current_time} 执行同步任务")
-
-    success, elapsed = await execute_with_retry(sync_tasks, max_retries, shutdown_event)
-
-    if shutdown_event.is_set():
-        return False
-
-    wait_time = max(1, sync_interval - elapsed)
-    logger.info(f"等待 {wait_time:.1f} 秒后再次执行")
-    interrupted = await wait_with_interrupt(shutdown_event, wait_time)
-
-    return not interrupted
+    await execute_with_retry(sync_tasks, max_retries)
+    return False
